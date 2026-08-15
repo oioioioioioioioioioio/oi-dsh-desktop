@@ -35,6 +35,17 @@ deepseek-harness\dist\oi-dsh-desktop-win32-x64\oi-dsh-desktop.exe
 
 Launch that executable directly after installation. Do not run `npx @deepseek-ai/dsh web`; that command starts the official browser deployment.
 
+## Upgrade
+
+Close the client, then run inside the existing `oi-dsh-desktop` directory:
+
+```powershell
+git pull
+.\install.cmd
+```
+
+The installer recognizes supported older extensions, migrates the Harness source in place, and rebuilds the EXE. Recloning Harness is not required.
+
 ## What setup does
 
 1. Installs `oi-dsh-desktop` and `oi-dsh-desktop-bundle`.

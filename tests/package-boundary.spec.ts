@@ -15,12 +15,13 @@ describe('published package boundary', () => {
 
     expect(desktop.name).toBe('oi-dsh-desktop')
     expect(desktop.dependencies?.['oi-dsh-desktop-bundle']).toBe(
-      'https://codeload.github.com/oioioioioioioioioioio/oi-dsh-desktop-bundle/tar.gz/refs/tags/v0.2.0',
+      'https://codeload.github.com/oioioioioioioioioioio/oi-dsh-desktop-bundle/tar.gz/refs/tags/v0.2.1',
     )
     expect(bundle.name).toBe('oi-dsh-desktop-bundle')
-    expect(bundle.version).toBe('0.2.0')
+    expect(bundle.version).toBe('0.2.1')
     expect(bundle.dsh?.bundle?.patch).toBe('./cordis.patch.yml')
     expect(bundle.files).toContain('harness.patch')
+    expect(bundle.files).toContain('legacy')
     expect(bundle.exports).toHaveProperty('./harness-extension')
     expect(desktop.files).not.toContain('node_modules')
   })

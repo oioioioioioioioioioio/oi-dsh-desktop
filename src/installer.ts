@@ -6,6 +6,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import {
   HARNESS_EXTENSION_VERSION,
   harnessPatchPath,
+  legacyHarnessPatchPaths,
 } from 'oi-dsh-desktop-bundle/harness-extension'
 import { packageRoot } from './package-meta.js'
 
@@ -51,14 +52,51 @@ export async function installHarnessExtension(harnessRoot: string): Promise<void
   }
 
   const check = await runCaptured('git', ['apply', '--check', patch], harnessRoot, true)
-  if (check.code !== 0) {
-    const revisionResult = await runCaptured('git', ['rev-parse', '--short', 'HEAD'], harnessRoot, true)
-    const revision = revisionResult.code === 0 ? revisionResult.stdout.trim() : 'unknown'
-    throw new Error(
-      `Harness source at ${revision} is not compatible with desktop extension ${HARNESS_EXTENSION_VERSION}:\n${check.stderr.trim()}`,
-    )
+  if (check.code === 0) {
+    await applyHarnessPatch(harnessRoot, patch, 'Applying Harness desktop extension')
+    return
   }
-  await run('git', ['apply', '--whitespace=nowarn', patch], harnessRoot, 'Applying Harness desktop extension')
+
+  for (const legacyPatch of legacyHarnessPatchPaths()) {
+    const legacyInstalled = await runCaptured(
+      'git', ['apply', '--reverse', '--check', legacyPatch], harnessRoot, true,
+    )
+    if (legacyInstalled.code !== 0) continue
+    await upgradeHarnessPatch(harnessRoot, legacyPatch, patch)
+    return
+  }
+
+  const revisionResult = await runCaptured('git', ['rev-parse', '--short', 'HEAD'], harnessRoot, true)
+  const revision = revisionResult.code === 0 ? revisionResult.stdout.trim() : 'unknown'
+  throw new Error(
+    `Harness source at ${revision} is not compatible with desktop extension ${HARNESS_EXTENSION_VERSION}:\n${check.stderr.trim()}`,
+  )
+}
+
+async function applyHarnessPatch(harnessRoot: string, patch: string, label: string): Promise<void> {
+  await run('git', ['apply', '--whitespace=nowarn', patch], harnessRoot, label)
+}
+
+async function upgradeHarnessPatch(harnessRoot: string, legacyPatch: string, patch: string): Promise<void> {
+  process.stdout.write(`Upgrading Harness desktop extension to ${HARNESS_EXTENSION_VERSION}...\n`)
+  await run(
+    'git', ['apply', '--reverse', '--whitespace=nowarn', legacyPatch],
+    harnessRoot, 'Removing previous Harness desktop extension',
+  )
+  try {
+    const check = await runCaptured('git', ['apply', '--check', patch], harnessRoot, true)
+    if (check.code !== 0) throw new Error(`updated Harness extension cannot be applied:\n${check.stderr.trim()}`)
+    await applyHarnessPatch(harnessRoot, patch, 'Applying updated Harness desktop extension')
+  } catch (error) {
+    try {
+      await applyHarnessPatch(harnessRoot, legacyPatch, 'Restoring previous Harness desktop extension')
+    } catch (rollbackError) {
+      throw new AggregateError(
+        [error, rollbackError], 'Harness desktop extension upgrade and rollback both failed',
+      )
+    }
+    throw error
+  }
 }
 
 export async function buildPackagedDesktop(harnessRoot: string): Promise<string> {

@@ -53,6 +53,17 @@ deepseek-harness\dist\oi-dsh-desktop-win32-x64\oi-dsh-desktop.exe
 
 安装完成后直接双击该 EXE。不要运行 `npx @deepseek-ai/dsh web`，后者只会启动官方浏览器界面。
 
+## 升级
+
+先关闭客户端，再在现有 `oi-dsh-desktop` 目录执行：
+
+```powershell
+git pull
+.\install.cmd
+```
+
+安装器会识别已应用的旧扩展，原地迁移 Harness 源码并重新生成 EXE，不需要重新克隆 Harness。
+
 ## 客户端功能
 
 - Electron 进程内 Harness Host 和固定 IPC 边界，不启动 HTTP/WebSocket 服务。
