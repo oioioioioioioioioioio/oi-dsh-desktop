@@ -6,6 +6,10 @@ Windows Electron client installer for a DeepSeek Harness source checkout.
 
 The installer extends the Harness source composition and builds a packaged desktop application. The Harness Host runs inside Electron's main process and the renderer connects over process-local IPC. It does not run `dsh web`, open port 3080, or wrap a browser URL.
 
+## Preview
+
+![oi-dsh-desktop interface preview](./assets/desktop-preview.png)
+
 ## Requirements
 
 - Windows 10 or Windows 11 x64

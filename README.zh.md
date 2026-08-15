@@ -4,6 +4,10 @@
 
 客户端直接扩展 Harness 源码并构建官方 Cordis 组合。Harness Host 运行在 Electron 主进程中，Renderer 通过进程内 IPC 连接，不执行 `dsh web`，不监听 `3080` 端口，也不是加载网页地址的 Electron 外壳。
 
+## 界面预览
+
+![oi-dsh-desktop 界面预览](./assets/desktop-preview.png)
+
 ## 环境要求
 
 - Windows 10 或 Windows 11 x64
