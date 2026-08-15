@@ -1,24 +1,15 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+set "DESKTOP_ROOT=%~dp0"
+set "HARNESS_ROOT=%DESKTOP_ROOT%.."
+set "DESKTOP_EXE=%HARNESS_ROOT%\dist\oi-dsh-desktop-win32-x64\oi-dsh-desktop.exe"
 
-where node >nul 2>nul
-if errorlevel 1 (
-  echo Node.js was not found. Install Node.js 22.19.0 or newer first.
+if not exist "%DESKTOP_EXE%" (
+  echo Desktop executable has not been built.
+  echo Run install.cmd once, then launch:
+  echo %DESKTOP_EXE%
   exit /b 1
 )
 
-where npm >nul 2>nul
-if errorlevel 1 (
-  echo npm was not found. Reinstall Node.js with npm enabled.
-  exit /b 1
-)
-
-if not exist "node_modules\.package-lock.json" (
-  echo Installing dependencies for the first run...
-  call npm install
-  if errorlevel 1 exit /b %errorlevel%
-)
-
-call npm start -- %*
-exit /b %errorlevel%
+start "DeepSeek Harness Desktop" "%DESKTOP_EXE%"
+exit /b 0

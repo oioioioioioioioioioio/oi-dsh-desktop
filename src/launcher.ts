@@ -1,54 +1,113 @@
 #!/usr/bin/env node
 
-import { spawn } from 'node:child_process'
-import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
-import { desktopHelp, parseDesktopArgs } from './args.js'
-import { desktopManifest } from './package-meta.js'
+import { resolve } from 'node:path'
+import {
+  buildPackagedDesktop,
+  installHarnessExtension,
+  resolveHarnessRoot,
+  setupPackagedDesktop,
+  startPackagedDesktop,
+} from './installer.js'
 
-function electronExecutable(): string {
-  const loaded: unknown = createRequire(import.meta.url)('electron')
-  if (typeof loaded !== 'string' || loaded.length === 0) {
-    throw new Error('Electron executable could not be resolved')
-  }
-  return loaded
+type Command = 'setup' | 'install' | 'build' | 'start'
+
+interface CliOptions {
+  readonly command: Command
+  readonly harnessRoot?: string
+  readonly help: boolean
 }
 
-async function launch(): Promise<number> {
-  const args = process.argv.slice(2)
-  const options = parseDesktopArgs(args)
+function parseArgs(argv: readonly string[]): CliOptions {
+  let command: Command = 'start'
+  let commandSeen = false
+  let harnessRoot: string | undefined
+  let help = false
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index]
+    if (argument === undefined) break
+    if (!argument.startsWith('-') && !commandSeen) {
+      if (!['setup', 'install', 'build', 'start'].includes(argument)) {
+        throw new Error(`unknown command ${JSON.stringify(argument)}`)
+      }
+      command = argument as Command
+      commandSeen = true
+      continue
+    }
+    switch (argument) {
+      case '--harness-root': {
+        const value = argv[index + 1]
+        if (value === undefined || value === '' || value.startsWith('--')) {
+          throw new Error('--harness-root requires a directory')
+        }
+        harnessRoot = resolve(value)
+        index += 1
+        break
+      }
+      case '-h':
+      case '--help':
+        help = true
+        break
+      default:
+        throw new Error(`unknown option ${JSON.stringify(argument)}`)
+    }
+  }
+  return {
+    command,
+    ...(harnessRoot === undefined ? {} : { harnessRoot }),
+    help,
+  }
+}
+
+function helpText(): string {
+  return [
+    'Usage: oi-dsh-desktop <command> [options]',
+    '',
+    'Commands:',
+    '  setup      install the Harness extension, build it, and package the EXE',
+    '  install    apply the source extension only',
+    '  build      build and package an already installed extension',
+    '  start      launch the generated desktop EXE (default)',
+    '',
+    'Options:',
+    '  --harness-root <path>          Harness source root (default: parent directory)',
+    '  -h, --help                     show this help',
+  ].join('\n')
+}
+
+async function main(): Promise<void> {
+  const options = parseArgs(process.argv.slice(2))
   if (options.help) {
-    process.stdout.write(`${desktopHelp()}\n`)
-    return 0
+    process.stdout.write(`${helpText()}\n`)
+    return
   }
-  if (options.version) {
-    process.stdout.write(`${desktopManifest().version}\n`)
-    return 0
+  const harnessRoot = resolveHarnessRoot(options.harnessRoot)
+  switch (options.command) {
+    case 'install':
+      await installHarnessExtension(harnessRoot)
+      return
+    case 'build':
+      await buildPackagedDesktop(harnessRoot)
+      return
+    case 'setup':
+      await setupPackagedDesktop(harnessRoot)
+      return
+    case 'start':
+      startPackagedDesktop(harnessRoot)
+      return
   }
-  const main = fileURLToPath(new URL('./main.js', import.meta.url))
-  return new Promise<number>((resolve, reject) => {
-    const child = spawn(electronExecutable(), [main, ...args], {
-      stdio: 'inherit',
-      windowsHide: true,
-      env: { ...process.env, OI_DSH_NODE_EXECUTABLE: process.execPath },
-    })
-    const interrupt = (): void => { if (!child.killed) child.kill('SIGINT') }
-    const terminate = (): void => { if (!child.killed) child.kill('SIGTERM') }
-    process.once('SIGINT', interrupt)
-    process.once('SIGTERM', terminate)
-    child.once('error', reject)
-    child.once('exit', (code, signal) => {
-      process.removeListener('SIGINT', interrupt)
-      process.removeListener('SIGTERM', terminate)
-      resolve(code ?? (signal === null ? 1 : 128))
-    })
-  })
 }
 
-void launch().then(
-  code => { process.exitCode = code },
-  (error: unknown) => {
-    process.stderr.write(`oi-dsh-desktop: ${error instanceof Error ? error.message : String(error)}\n`)
-    process.exitCode = 1
-  },
-)
+void main().catch((error: unknown) => {
+  process.stderr.write(`oi-dsh-desktop: ${formatError(error)}\n`)
+  process.exitCode = 1
+})
+
+function formatError(error: unknown): string {
+  const parts: string[] = []
+  let current: unknown = error
+  while (current !== undefined) {
+    parts.push(current instanceof Error ? current.message : String(current))
+    current = current instanceof Error ? current.cause : undefined
+  }
+  return parts.join('\ncaused by: ')
+}

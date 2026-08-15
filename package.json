@@ -1,7 +1,7 @@
 {
   "name": "oi-dsh-desktop",
-  "version": "0.1.0",
-  "description": "Standalone Electron IPC client for DeepSeek Harness",
+  "version": "0.2.0",
+  "description": "Installer and Windows packager for the DeepSeek Harness Electron source extension",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -27,6 +27,8 @@
   "files": [
     "lib",
     "assets",
+    "install.cmd",
+    "start.cmd",
     "README.md",
     "README.zh.md"
   ],
@@ -35,7 +37,11 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "check": "npm run typecheck && npm test && npm run build",
-    "start": "npm run build && node lib/launcher.js",
+    "setup": "npm run build && node lib/launcher.js setup",
+    "install:harness": "npm run build && node lib/launcher.js install",
+    "build:exe": "npm run build && node lib/launcher.js build",
+    "start": "npm run build && node lib/launcher.js start",
+    "start:standalone": "npm run build && node lib/standalone-launcher.js",
     "prepare": "npm run build"
   },
   "engines": {
@@ -54,8 +60,10 @@
     "@deepseek-ai/dsh-launch-environment": "0.1.0-rc.6",
     "@deepseek-ai/dsh-web-app": "0.1.0-rc.6",
     "@deepseek-ai/dsh-web-frontend": "0.1.0-rc.6",
+    "@electron/packager": "20.0.0",
     "electron": "^43.4.0",
-    "oi-dsh-desktop-bundle": "https://codeload.github.com/oioioioioioioioioioio/oi-dsh-desktop-bundle/tar.gz/refs/tags/v0.1.1"
+    "oi-dsh-desktop-bundle": "https://codeload.github.com/oioioioioioioioioioio/oi-dsh-desktop-bundle/tar.gz/refs/tags/v0.2.0",
+    "pnpm": "11.7.0"
   },
   "devDependencies": {
     "@types/node": "^22.19.0",

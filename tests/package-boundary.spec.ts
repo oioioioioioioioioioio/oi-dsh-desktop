@@ -15,17 +15,22 @@ describe('published package boundary', () => {
 
     expect(desktop.name).toBe('oi-dsh-desktop')
     expect(desktop.dependencies?.['oi-dsh-desktop-bundle']).toBe(
-      'https://codeload.github.com/oioioioioioioioioioio/oi-dsh-desktop-bundle/tar.gz/refs/tags/v0.1.1',
+      'https://codeload.github.com/oioioioioioioioioioio/oi-dsh-desktop-bundle/tar.gz/refs/tags/v0.2.0',
     )
     expect(bundle.name).toBe('oi-dsh-desktop-bundle')
+    expect(bundle.version).toBe('0.2.0')
     expect(bundle.dsh?.bundle?.patch).toBe('./cordis.patch.yml')
+    expect(bundle.files).toContain('harness.patch')
+    expect(bundle.exports).toHaveProperty('./harness-extension')
     expect(desktop.files).not.toContain('node_modules')
   })
 })
 
 interface PackageManifest {
   readonly name?: string
+  readonly version?: string
   readonly files?: string[]
+  readonly exports?: Record<string, unknown>
   readonly dependencies?: Record<string, string>
   readonly dsh?: { readonly bundle?: { readonly patch?: string } }
 }

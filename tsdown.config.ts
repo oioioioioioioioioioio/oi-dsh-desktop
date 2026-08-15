@@ -5,6 +5,8 @@ export default defineConfig([
     entry: {
       main: 'src/main.ts',
       launcher: 'src/launcher.ts',
+      'standalone-launcher': 'src/standalone-launcher.ts',
+      installer: 'src/installer.ts',
     },
     outDir: 'lib',
     format: 'esm',

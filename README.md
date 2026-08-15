@@ -2,73 +2,67 @@
 
 [中文说明](./README.zh.md)
 
-An open-source Electron client for DeepSeek Harness. It runs the Harness Host
-inside Electron through process-local IPC, without starting `dsh web` or a
-Harness HTTP/WebSocket listener.
+Windows Electron client installer for a DeepSeek Harness source checkout.
 
-The Harness integration is maintained separately in
-[`oi-dsh-desktop-bundle`](https://github.com/oioioioioioioioioioio/oi-dsh-desktop-bundle).
-This repository pins a tagged bundle release and npm installs it automatically.
-The official `@deepseek-ai/dsh` package is also installed from npm and is never
-copied, patched, or modified by this project.
+The installer extends the Harness source composition and builds a packaged desktop application. The Harness Host runs inside Electron's main process and the renderer connects over process-local IPC. It does not run `dsh web`, open port 3080, or wrap a browser URL.
 
-## Run from source
+## Requirements
 
-Requirements:
-
-- Windows 10 or Windows 11
+- Windows 10 or Windows 11 x64
 - Node.js 22.19.0 or newer, with npm
 - Git
 
+The installer carries its own pinned pnpm version. A global pnpm install is not required.
+It checks whether the desktop extension applies cleanly to the current Harness source and stops without modifying files when the source is incompatible.
+
+## Install
+
+Clone this repository directly inside the Harness source root:
+
 ```powershell
+git clone https://github.com/deepseek-ai/deepseek-harness.git
+cd deepseek-harness
 git clone https://github.com/oioioioioioioioioioio/oi-dsh-desktop.git
 cd oi-dsh-desktop
-npm install
+.\install.cmd
+```
+
+The generated application is:
+
+```text
+deepseek-harness\dist\oi-dsh-desktop-win32-x64\oi-dsh-desktop.exe
+```
+
+Launch that executable directly after installation. Do not run `npx @deepseek-ai/dsh web`; that command starts the official browser deployment.
+
+## What setup does
+
+1. Installs `oi-dsh-desktop` and `oi-dsh-desktop-bundle`.
+2. Applies the Electron IPC, file workbench, and three-column source extension to Harness.
+3. Installs Harness dependencies with the pinned pnpm release.
+4. Builds the isolated production Electron runtime.
+5. Packages a directly launchable Windows application.
+
+## Features
+
+- Process-local Electron IPC with no Harness HTTP or WebSocket listener.
+- Custom native-style title bar and complete native window behavior.
+- Multiple workspaces and sessions.
+- Toggleable, unrestricted-width project explorer and file workbench.
+- Multi-tab CodeMirror editor with syntax highlighting, undo, redo, reload, and save.
+- Markdown source, preview, and split modes.
+- Workspace-confined, version-guarded file operations.
+- Native folder picker and session export.
+
+## Commands
+
+```powershell
+npm run install:harness
+npm run build:exe
+npm run setup
 npm start
 ```
 
-No pnpm installation and no separate bundle checkout are required. On Windows,
-`start.cmd` can also be launched from Explorer; it installs dependencies on the
-first run and starts the client.
-
-## Desktop features
-
-- Custom native-style title bar and bundled desktop logo.
-- Multiple project directories with project switching.
-- Collapsible project/file sidebar with a project directory default view.
-- Integrated source editor with syntax highlighting.
-- Integrated Markdown preview and workspace file editing.
-- Electron-native folder picker on Windows.
-- Managed desktop profile under `DSH_HOME/profiles/oi-desktop`.
-
-## Command-line options
-
-```text
---profile <name>                 Managed profile name (default: oi-desktop)
---dsh-home <path>                Override DSH_HOME for this launch
---devtools                       Open Electron developer tools
---allow-unsupported-harness      Skip the supported Harness version check
-```
-
-Pass options through npm or the Windows launcher:
-
-```powershell
-npm start -- --devtools
-.\start.cmd --devtools
-```
-
-## Development
-
-```powershell
-npm install
-npm run check
-```
-
-`npm run check` runs typechecking, tests, and a production build. The generated
-`lib/` directory is intentionally not committed. `npm install` retrieves the
-verified HTTPS bundle archive, and `npm start` rebuilds this client before
-launching it.
-
 ## License
 
-Apache-2.0
+Apache-2.0. The extended DeepSeek Harness source remains under its MIT license.
