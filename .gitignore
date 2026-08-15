@@ -1,0 +1,14 @@
+node_modules/
+node_modules.pnpm-backup/
+lib/
+artifacts/
+coverage/
+.smoke-home/
+.env
+.env.local
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
