@@ -73,6 +73,7 @@ git pull
 - Electron 进程内 Harness Host 和固定 IPC 边界，不启动 HTTP/WebSocket 服务。
 - 自定义原生风格标题栏、窗口拖动、缩放、最大化、最小化和关闭。
 - 多项目工作区和会话切换。
+- Harness Web 与 Electron 均支持 Workspace `@file` 和 `@folder` 引用，可模糊搜索路径；只把相对路径发给模型，不附带文件内容。
 - 可显示或隐藏的右侧项目目录与文件工作台。
 - 右侧工作台宽度可拖动到窗口允许的任意宽度。
 - 多标签文本与代码编辑，包含 CodeMirror 语法高亮、撤销、重做、刷新和保存。

@@ -63,6 +63,7 @@ The installer recognizes supported older extensions, migrates the Harness source
 - Process-local Electron IPC with no Harness HTTP or WebSocket listener.
 - Custom native-style title bar and complete native window behavior.
 - Multiple workspaces and sessions.
+- Workspace `@file` and `@folder` references in both Harness Web and Electron, with fuzzy path search and path-only prompts that never attach file contents.
 - Toggleable, unrestricted-width project explorer and file workbench.
 - Multi-tab CodeMirror editor with syntax highlighting, undo, redo, reload, and save.
 - Markdown source, preview, and split modes.

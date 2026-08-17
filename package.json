@@ -1,6 +1,6 @@
 {
   "name": "oi-dsh-desktop",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Installer and Windows packager for the DeepSeek Harness Electron source extension",
   "license": "Apache-2.0",
   "repository": {
@@ -62,7 +62,7 @@
     "@deepseek-ai/dsh-web-frontend": "0.1.0-rc.6",
     "@electron/packager": "20.0.0",
     "electron": "^43.4.0",
-    "oi-dsh-desktop-bundle": "https://codeload.github.com/oioioioioioioioioioio/oi-dsh-desktop-bundle/tar.gz/refs/tags/v0.2.2",
+    "oi-dsh-desktop-bundle": "https://codeload.github.com/oioioioioioioioioioio/oi-dsh-desktop-bundle/tar.gz/refs/tags/v0.3.0",
     "pnpm": "11.7.0"
   },
   "devDependencies": {
